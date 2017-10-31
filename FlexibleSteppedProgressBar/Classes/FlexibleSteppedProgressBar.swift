@@ -59,9 +59,9 @@ import CoreGraphics
         }
     }
     
-    open var currentSelectedCenterColor: UIColor = UIColor.black
+    open var currentSelectedCenterColor: UIColor = UIColor.clear
     open var currentSelectedTextColor: UIColor!
-    open var viewBackgroundColor: UIColor = UIColor.white
+    open var viewBackgroundColor: UIColor = UIColor(red: 216/255, green: 216/255, blue: 216/255, alpha: 1)
     open var selectedOuterCircleStrokeColor: UIColor!
     open var lastStateOuterCircleStrokeColor: UIColor!
     open var lastStateCenterColor: UIColor!
@@ -86,7 +86,7 @@ import CoreGraphics
         }
     }
     
-    open var selectedOuterCircleLineWidth: CGFloat = 3.0 {
+    open var selectedOuterCircleLineWidth: CGFloat = 0.0 {
         didSet {
             self.setNeedsDisplay()
         }
@@ -189,14 +189,14 @@ import CoreGraphics
     
     
     /// The component's background color
-    @IBInspectable open var backgroundShapeColor: UIColor = UIColor(red: 238.0/255.0, green: 238.0/255.0, blue: 238.0/255.0, alpha: 0.8) {
+    @IBInspectable open var backgroundShapeColor: UIColor = UIColor(red: 216/255, green: 216/255, blue: 216/255, alpha: 1) {
         didSet {
             self.setNeedsDisplay()
         }
     }
     
     /// The component selected background color
-    @IBInspectable open var selectedBackgoundColor: UIColor = UIColor(red: 251.0/255.0, green: 167.0/255.0, blue: 51.0/255.0, alpha: 1.0) {
+    @IBInspectable open var selectedBackgoundColor: UIColor = UIColor.clear {
         didSet {
             self.setNeedsDisplay()
         }
@@ -341,7 +341,7 @@ import CoreGraphics
             
             let progressPath = self._shapePath(self.centerPoints, aRadius: _progressRadius, aLineHeight: _progressLineHeight)
             progressLayer.path = progressPath.cgPath
-            progressLayer.fillColor = selectedBackgoundColor.cgColor
+            progressLayer.fillColor = UIColor.gray.cgColor
             
             let clearSelectedRadius = fmax(_progressRadius, _progressRadius + selectedOuterCircleLineWidth)
             let clearSelectedPath = self._shapePathForSelected(self.centerPoints[currentIndex], aRadius: clearSelectedRadius)
@@ -359,6 +359,7 @@ import CoreGraphics
                 selectionCenterLayer.fillColor = UIColor.clear.cgColor
                 selectionCenterLayer.lineWidth = selectedOuterCircleLineWidth
                 selectionCenterLayer.strokeEnd = 1.0
+
             } else {
                 let selectedPathCenter = self._shapePathForSelectedPathCenter(self.centerPoints[currentIndex], aRadius: _progressRadius + selectedOuterCircleLineWidth)
                 selectionCenterLayer.path = selectedPathCenter.cgPath
@@ -367,7 +368,7 @@ import CoreGraphics
                 selectionCenterLayer.lineWidth = selectedOuterCircleLineWidth
                 
                 if completedTillIndex >= 0 {
-                    
+
                     let lastStateLayerPath = self._shapePathForLastState(self.centerPoints[completedTillIndex])
                     lastStateLayer.path = lastStateLayerPath.cgPath
                     lastStateLayer.strokeColor = lastStateOuterCircleStrokeColor.cgColor
@@ -377,6 +378,11 @@ import CoreGraphics
                     let lastStateCenterLayerPath = self._shapePathForSelected(self.centerPoints[completedTillIndex], aRadius: _radius)
                     lastStateCenterLayer.path = lastStateCenterLayerPath.cgPath
                     lastStateCenterLayer.fillColor = lastStateCenterColor.cgColor
+
+                    // LEKA STEP
+
+                    self.saveStep()
+
                 }
                 if currentIndex > 0 {
                     let lastPoint = centerPoints[currentIndex-1]
@@ -765,5 +771,20 @@ import CoreGraphics
             }
         }
     }
-    
+
+    // Leka Functions
+
+    func saveStep() {
+
+        let step = CAShapeLayer()
+
+        step.fillColor = self.lastStateCenterColor.cgColor
+        step.path = self.lastStateLayer.path
+        step.lineWidth = self.lastStateOuterCircleLineWidth
+        step.strokeColor = UIColor.gray.cgColor
+
+        self.layer.addSublayer(step)
+
+    }
+
 }
